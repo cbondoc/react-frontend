@@ -1,48 +1,33 @@
 import React from "react";
-import { useQuery, createClient, QueryClientProvider } from "tanstack-query";
-import axios from "axios";
+import { useQuery } from "react-query";
 
-const queryClient = createClient();
+function App() {
+  const { data, error, isLoading } = useQuery("data", fetchData);
 
-function fetchDetails() {
-  return axios.get("http://localhost:8000").then((res) => res.data);
-}
-
-function DataComponent() {
-  const { data, error, status } = useQuery("details", fetchDetails);
-
-  if (status === "loading") {
+  if (isLoading) {
     return <p>Loading...</p>;
   }
 
-  if (status === "error") {
+  if (error) {
     return <p>Error: {error.message}</p>;
   }
 
   return (
-    <div style={{ textAlign: "center" }}>
-      <h1>Data Generated From Django</h1>
+    <div className="container mt-5">
+      <h1 className="text-center">Data Generated From Django</h1>
       <hr />
-      <table
-        style={{
-          margin: "0 auto",
-          textAlign: "left",
-          borderCollapse: "collapse",
-          width: "80%",
-          border: "1px solid #000",
-        }}
-      >
+      <table className="table table-bordered table-striped">
         <thead>
           <tr>
-            <th style={{ border: "1px solid #000" }}>Employee</th>
-            <th style={{ border: "1px solid #000" }}>Department</th>
+            <th>Employee</th>
+            <th>Department</th>
           </tr>
         </thead>
         <tbody>
           {data.map((output, id) => (
             <tr key={id}>
-              <td style={{ border: "1px solid #000" }}>{output.employee}</td>
-              <td style={{ border: "1px solid #000" }}>{output.department}</td>
+              <td>{output.employee}</td>
+              <td>{output.department}</td>
             </tr>
           ))}
         </tbody>
@@ -51,12 +36,13 @@ function DataComponent() {
   );
 }
 
-function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <DataComponent />
-    </QueryClientProvider>
-  );
-}
+// Replace this function with your actual data-fetching logic
+const fetchData = async () => {
+  const response = await fetch("http://localhost:8000");
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return response.json();
+};
 
 export default App;
